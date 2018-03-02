@@ -1,0 +1,11 @@
+#use <conio>
+
+int main()
+{
+  println(greet("OHI", "professor"));
+  println(greet(salute(0), "student"));
+  println(greet(salute(1), "you"));
+  println(greet(salute(2), "partner"));
+  println(greet(salute(3), "Iliano"));
+  return 0;
+}

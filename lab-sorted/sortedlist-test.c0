@@ -1,0 +1,95 @@
+#use <parse>
+
+void fail_test(string desc) {
+    println(desc);
+    assert(false);
+}
+
+int testIsIn() {
+  // Here's an example
+  // Remember that parse ints takes a list of integers separated by spaces
+  //   as well as a base (here, 10) in which to interpret the integers
+  sortedlist* S = array_to_linkedlist(parse_ints("-2 6 12", 10), 3);
+
+  /* Test 1 */
+  if (!is_in(S, 6)) {
+      println("Failed Test 1 for is_in");
+      assert(false);
+  }
+
+  if(is_in(S, 13)) {
+      fail_test("Failed S, 13 for is_in");
+  }
+
+  if(!is_in(S, -2)) {
+      fail_test("Failed last for is_in");
+  }
+
+  return 0;
+}
+
+int testInsert() {
+
+  // Here's an example
+  sortedlist* S = array_to_linkedlist(parse_ints("", 10), 0);
+
+  /* Test 1 */
+  insert(S, 5);
+  if(!is_in(S, 5)) {
+      println("Failed Test 1 for insert");
+      assert(false);
+  }
+
+  insert(S, 5);
+  int[] sol = parse_ints("3 5", 10);
+  if(list_length(S) != 1) {
+      fail_test("Failed duplicate insertion");
+  }
+
+  insert(S, 3);
+  if(!arr_eq(sol, linkedlist_to_array(S), 2)) {
+      fail_test("Arr equality");
+  }
+
+
+  /* TODO : Add more tests for insert here! */
+  return 0;
+}
+
+
+int testDelete() {
+  // Here's an example
+  sortedlist* S = array_to_linkedlist(parse_ints("", 10), 1);
+
+  /* Test 1 */
+  delete(S, -2);
+  if (is_in(S, -2)) {
+      println("Failed Test 1 for delete");
+      assert(false);
+  }
+
+  delete(S,2);
+  if (is_in(S,13)) {
+      println("Failed Test 2 for delete");
+      assert(false);
+  }
+  
+  delete(S,12);
+  if (list_length(S) != 0){
+      println("Failed Test 3");
+      assert(false);
+  }
+
+  
+
+  /* TODO : Add more tests for delete here! */
+  return 0;
+}
+
+
+int main() {
+  testIsIn();
+  testInsert();
+  testDelete();
+  return 0;
+}

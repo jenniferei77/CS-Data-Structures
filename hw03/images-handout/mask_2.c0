@@ -1,0 +1,48 @@
+#use <util>
+#use <conio>
+
+pixel[] apply_mask(pixel[] pixels, int width, int height,
+                     int[] mask, int maskwidth)
+//@requires is_valid_imagesize(width, height);
+//@requires \length(pixels) == width*height;
+//@requires (maskwidth % 2) == 1;
+//@requires \length(mask) == maskwidth*maskwidth;
+//
+{
+  int[] masked_array = alloc_array(int, width*height);
+
+  for (int rows = 0; rows < height; rows++)
+  {
+    for(int cols = 0; cols < width; cols++)
+    {
+      int mask_sum = 0;
+      int m = 0;
+      for (int mask_rows = rows-maskwidth/2;
+           mask_rows < rows+maskwidth/2+1; mask_rows++)
+      {
+        for (int mask_cols = cols-maskwidth/2;
+             mask_cols < cols+maskwidth/2+1; mask_cols++)
+        {
+          if (mask_rows >= 0 && height > mask_rows
+            && mask_cols >= 0 && width > mask_cols)
+          {
+
+            int pixel_index = get_index(mask_rows, mask_cols,
+                                        width, height);
+            int avg = (get_red(pixels[pixel_index])
+                     + get_blue(pixels[pixel_index])
+                     + get_green(pixels[pixel_index]))/3;
+
+            mask_sum += avg*mask[m];
+            m++;
+          }
+        }
+        int index = get_index(rows, cols, width, height);
+        masked_array[index] = mask_sum;
+      }
+    }
+
+   }
+
+  return masked_array;
+}

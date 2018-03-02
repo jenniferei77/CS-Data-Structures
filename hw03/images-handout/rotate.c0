@@ -1,0 +1,48 @@
+#use <util>
+
+pixel[] rotate(pixel[] pixels, int width, int height)
+//@requires is_valid_imagesize(width, height);
+//@requires width == height;
+//@requires \length(pixels) == width*height;
+//@ensures \length(\result) == width*height*4;
+
+{
+
+  //array for the combo image of 4 rotated or shifted images
+  pixel[] combo = alloc_array(pixel, width*height*4);
+
+  for (int j = 0; j < height; j++)
+  //@loop_invariant 0 <= j && j <= height;
+  {
+    for (int i = 0; i < width; i++)
+    //@loop_invariant 0 <= i && i <= width;
+    {
+      //@assert is_valid_pixel(j, i, width, height);
+      int index_orig = get_index(j, i, width, height);
+
+      //shift to top right of combo
+      //@assert is_valid_pixel(j, i+width, width*2, height*2);
+      int index_shift = get_index(j, i+width, width*2, height*2);
+      combo[index_shift] = pixels[index_orig];
+
+      //rotate counter-clockwise, place top left of combo
+      //@assert is_valid_pixel(height-i-1, j, width*2, height*2);
+      int index_left = get_index(height-i-1, j, width*2, height*2);
+      combo[index_left] = pixels[index_orig];
+
+      //rotate clockwise, place bottom right of combo
+      //@assert is_valid_pixel(height+i, (width*2)-j-1, width*2, height*2);
+      int index_right = get_index(height+i, (width*2)-j-1, width*2, height*2);
+      combo[index_right] = pixels[index_orig];
+
+      //flip upside down, place bottom left of combo
+      //@assert is_valid_pixel((height*2)-j-1, width-i-1, width*2, height*2);
+      int index_flip = get_index((height*2)-j-1, width-i-1, width*2, height*2);
+      combo[index_flip] = pixels[index_orig];
+
+     // combo[index_orig] = pixels[index_orig];
+    }
+  }
+
+  return combo;
+}

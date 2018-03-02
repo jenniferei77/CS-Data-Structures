@@ -1,0 +1,25 @@
+int main(){
+  
+  int width = 3;
+  int height = 4;
+  pixel[] pixels = alloc_array(pixel, width*height);
+  int maskwidth = 3;
+  int[] mask = alloc_array(int, maskwidth*maskwidth);
+  
+  pixels[0] = 1;
+  pixels[1] = 0x00000010;
+  pixels[2] = 0x00000011;
+  pixels[3] = 0x00000100;
+  pixels[4] = 0x00000101;
+  pixels[5] = 0x00000110;
+
+  mask[0] = 1;
+  mask[1] = 2;
+  mask[2] = 3;
+  mask[3] = 4;
+  mask[4] = 5;
+  mask[5] = 6;
+
+
+  return 0;
+}

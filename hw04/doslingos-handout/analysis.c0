@@ -1,0 +1,123 @@
+#use <args>
+#use <conio>
+
+int main()  {
+
+  args_t args = args_parse();
+  int argc = args->argc;
+  string[] argv = args->argv;
+
+  bundle_t corpus = read_words(argv[1]);
+  int w = string_bundle_length(corpus);
+  bundle_t dict = read_words(argv[0]);
+  int v = string_bundle_length(dict);
+
+  string[] words = string_bundle_array(corpus);
+  string[] vocab = string_bundle_array(dict);
+
+  int[] freq = alloc_array(int, v);
+
+  int occurs = count_vocab(vocab, freq, v, argv[1], true);
+  sort_by_freq(vocab, freq, v);
+
+
+  print("The four most common words in the text corpus are: ");
+  print("\n");
+  int smallest = 0;
+  int[] freq_freqs = alloc_array(int, freq[v-1]+1);
+  int count = 0;
+  int first = 0;
+  int sec = 0;
+  int ind;
+
+  //What are the four most common words and their freqs
+  for(int k = 0; k < 4; k++)
+  {
+    print(vocab[v-k-1]); print("\t"); printint(freq[v-k-1]);
+    print("\n");
+
+  }
+
+  print("\nThese words appear 82 times in the text corpus: ");
+  print("\n");
+
+  for(int i = 0; i < v; i++)
+  //@loop_invariant 0 <= i && i <= v;
+  {
+
+    //What words appear 82 times?
+    if (freq[i] == 82)
+    {
+      ind = i;
+      print(vocab[i]); print("\n");
+    }
+
+    //Find the two smallest frequencies that do not occur
+    if (i == 0)
+    {
+      if (freq[i] != 0)
+      {
+        smallest++;
+        first = 0;
+      }
+    }
+    else if (i != 0 && smallest < 2 && freq[i] != freq[i-1]
+         && freq[i] != freq[i-1] + 1)
+    {
+      smallest++;
+      if (smallest < 2)
+      {
+        first = freq[i-1]+1;
+      }
+      else{
+        sec = freq[i-1]+1;
+      }
+    }
+
+    //How many times are there fewer words with frequency f than there
+    //are with frequency f+1?
+    if(i == 0)
+    {
+      if (freq[i] != 0) {
+
+        freq_freqs[0] = 0;
+      }
+      else {
+        freq_freqs[0]++;
+      }
+    }
+    else if (i != 0)
+    {
+      if (freq[i] == freq[i-1]) {
+
+        freq_freqs[freq[i-1]]++;
+      }
+      else
+      {
+        freq_freqs[freq[i]]++;
+      }
+    }
+
+  }
+
+  for (int m = 0; m < freq[v-1]; m++)
+  //@loop_invariant 0 <= m && m <= freq[v-1]-1;
+  {
+    if (freq_freqs[m] < freq_freqs[m+1])
+    {
+      count++;
+    }
+  }
+
+  print("\nThere are no words with frequency "); printint(first);
+  print(" or "); printint(sec); print(" in the corpus");
+
+  print("\n\n");
+  print("In this corpus, there are "); printint(count);
+  print(" times that a frequency f has\n");
+  print("strictly fewer words at that frequency than frequency f+1");
+
+
+
+  return 0;
+}

@@ -1,0 +1,109 @@
+/*
+ * Interface for dictionaries
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <conio>
+
+/* Interface to dictionaries (leave this alone) */
+
+// typedef ______* dict_t;
+
+struct dict_node {
+  string op;
+  int prec;
+  struct dict_node* next;
+};
+
+typedef struct dict_node* dict;
+
+struct dict_header {
+  dict start;
+  dict end;
+
+};
+
+typedef struct dict_header* dict_t;
+
+// Returns NULL if the input array has the same operator twice
+dict_t dict_new(string[] A, int n)
+//@requires \length(A) == n;
+//@requires is_infix_array(A, n);
+{
+  A[0] = "**";
+  print("Testing \t"); print(A[0]); print("Over here");
+
+  dict list = alloc(struct dict_node);
+  string[] sub_A = parse_tokens(A[0]);
+  int sub_size = num_tokens(A[0]);
+  list->op = sub_A[0];
+  list->prec = 0;
+  list->next = alloc(struct dict_node);
+
+  dict_t D = alloc(struct dict_header);
+  D->start = list;
+  D->end = list;
+
+  list = list->next;
+  for (int i = 0; i < n; i++)
+  //@loop_invariant 0 <= i && i <= n;
+  {
+    sub_A = parse_tokens(A[i]);
+    sub_size = num_tokens(A[i]);
+    for (int j = 1; j < sub_size; j++)
+    //@loop_invariant 1 <= j && j <= sub_size;
+    {
+
+      list->op = sub_A[j];
+      list->prec = i;
+      list->next = alloc(struct dict_node);
+      list = list->next;
+    }
+  }
+  list->next = NULL;
+  D->end = list->next;
+  //check for duplicates in dictionary
+  dict t1 = D->start;
+  dict t2 = D->end;
+
+  while (t1 != D->end)
+  {
+    while (t2 != D->end)
+    {
+      t2 = t2->next;
+      if (string_equal(t1->op,t2->op))
+      {
+        return NULL;
+      }
+    }
+    t1 = t1->next;
+    t2 = t1;
+  }
+
+  return D;
+}
+
+
+
+// Returns -1 if no definition is found
+int dict_lookup(dict_t D, string oper)
+//@requires D != NULL;
+//@ensures \result >= -1;
+{
+  dict t1 = D->start;
+  while (!(string_equal(t1->op,oper)) && t1 != D->end)
+  {
+    print(oper); print("\t"); print(t1->op); print("\n");
+    if (string_equal(t1->op,oper))
+    {
+      return t1->prec;
+    }
+    t1 = t1->next;
+  }
+
+  return -1;
+}
+
+/* Implementation to dictionaries should go here (implement this) */

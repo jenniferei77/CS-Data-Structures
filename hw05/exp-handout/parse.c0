@@ -1,0 +1,169 @@
+#use <string>
+#use <conio>
+
+bool is_precstack(dict_t D, stack_t S)
+//@requires D != NULL && S != NULL;
+
+{
+  string popped = "hi";
+  stack_t T = stack_new();
+  stack_t temp = stack_new();
+  while (!stack_empty(S))
+  {
+    popped = pop(S);
+    push(temp,popped);
+  }
+  while (!stack_empty(temp))
+  {
+    popped = pop(temp);
+    push(T,popped);
+  }
+  string larger = "im large";
+  string smaller = "im small";
+  int Lprec = 0;
+  int Sprec = 0;
+
+  larger = pop(T);
+  push(S,larger);
+  smaller = pop(T);
+  push(S,smaller);
+  bool exit = true;
+  while(!stack_empty(T))
+  {
+    Lprec = dict_lookup(D,larger);
+    Sprec = dict_lookup(D,smaller);
+
+    if (Lprec < Sprec || Lprec == -1 || Sprec == -1)
+    {
+      exit = false;
+    }
+    larger = smaller;
+    smaller = pop(T);
+    push(S,smaller);
+  }
+
+  return exit;
+}
+
+queue_t parse(dict_t D, queue_t input)
+//@requires D != NULL && input != NULL;
+//@ensures \result == NULL || queue_empty(input);
+{
+  queue_t out = queue_new();
+  stack_t op_stack = stack_new();
+  string check = "hi";
+  string token = "sup";
+  string last = "last";
+  int type = 1;
+
+  if (queue_empty(input))
+  {
+    return NULL;
+  }
+
+  while (!queue_empty(input))
+  //@loop_invariant input != NULL;
+  {
+    token = deq(input);
+
+    //If token is an int
+    if (parse_int(token,10) != NULL)
+    {
+      //Check if previous phase was also int
+      //if (type == 0)
+      //{
+      //  return NULL;
+      //}
+      //else
+      //{
+      //  type = 0;
+      //}
+
+      //Put int on output queue
+      enq(out,token);
+    }
+    //If token is an operator in dictionary
+    else if (dict_lookup(D,token) != -1)
+    {
+      //Check if previous phase was also oper
+      //if (type == 1)
+      //{
+      //  return NULL;
+      //}
+      //else
+      //{
+      //  type = 1;
+      //}
+
+      //If first operator detected
+      if (stack_empty(op_stack))
+      {
+        push(op_stack,token);
+        type = 0;
+      }
+      //If operators already on stack
+      else
+      {
+        //Pop top of operator stack to compare to token
+        check = pop(op_stack);
+
+        //If top of stack lower prec than token prec
+        if (dict_lookup(D,check) < dict_lookup(D,token))
+        {
+          //push original operator, then push token
+          push(op_stack,check);
+          push(op_stack,token);
+        }
+        //If top of stack lower or equal prec than token
+        else
+        {
+          //Queue ops on stack of higher or equal prec
+          while (dict_lookup(D,check) > dict_lookup(D,token))
+          {
+            enq(out,check);
+            check = "@";
+            //stop popping oper items if stack empty
+            if (!stack_empty(op_stack))
+            {
+              check = pop(op_stack);
+            }
+          }
+          //If op_stack now empty but still need to check last pop
+          if (dict_lookup(D,check) == dict_lookup(D,token))
+          {
+            push(op_stack,token);
+          }
+          else
+          {
+            push(op_stack,token);
+          }
+        }
+      }
+    }
+    //If token is not an int or valid operator
+    else
+    {
+      return NULL;
+    }
+    check = token;
+
+  }
+  //Put remaining operators onto output queue
+  while (!stack_empty(op_stack))
+  //@loop_invariant op_stack != NULL;
+  {
+    last = pop(op_stack);
+    enq(out,last);
+  }
+
+  return out;
+
+}
+
+
+
+
+
+
+
+

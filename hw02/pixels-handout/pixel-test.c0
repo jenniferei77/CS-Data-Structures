@@ -1,0 +1,32 @@
+/*
+ * Unit tests for the bad pixel file
+ *
+ */
+
+int main(){
+
+
+  assert(make_pixel(255, 238, 127, 45) == -1147091);
+  assert(get_alpha(-1147091) == 255);
+  assert(get_red(-1147091) == 238);
+  assert(get_blue(-1147091) == 45);
+  assert(get_green(-1147091) == 127);
+
+  assert(make_pixel(0, 0, 0, 0) == 0);
+  assert(get_alpha(0) == 0);
+  assert(get_green(0) == 0);
+  assert(get_red(0) == 0);
+  assert(get_blue(0) == 0);
+
+  assert(make_pixel(255, 255, 255, 255) == -1);
+  assert(get_alpha(-1) == 255);
+  assert(get_green(-1) == 255);
+  assert(get_red(-1) == 255);
+  assert(get_blue(-1) == 255);
+
+  //make_pixel(0,-1,0,0);
+  //make_pixel(256, 255, 255, 255);
+
+
+  return 0;
+}

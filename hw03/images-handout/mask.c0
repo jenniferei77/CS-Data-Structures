@@ -1,0 +1,79 @@
+#use <util>
+#use <conio>
+
+
+pixel[] apply_mask(pixel[] pixels, int width, int height,
+                     int[] mask, int maskwidth)
+//@requires is_valid_imagesize(width, height);
+//@requires \length(pixels) == width*height;
+//@requires (maskwidth % 2) == 1;
+//@requires \length(mask) == maskwidth*maskwidth;
+{
+
+  pixel[] padded = alloc_array(pixel, (width+maskwidth-1)*(height+maskwidth-1));
+  int red = 0;
+  int green = 0;
+  int blue = 0;
+
+  //Creates padded array that takes the average of the original
+  //pixels and is padded with 0's where the mask will reach
+  //along the edges
+  for (int p_rows = maskwidth/2; p_rows < (height+maskwidth/2-1); p_rows++)
+  /*@loop_invariant maskwidth/2 <= p_rows
+    @                 && p_rows <= height-1+maskwidth/2; @*/
+  {
+    for (int p_cols = maskwidth/2; p_cols < (width+maskwidth/2-1); p_cols++)
+    /*@loop_invariant maskwidth/2 <= p_cols
+      @                 && p_cols <= width-1+maskwidth/2; @*/
+    {
+      int p_index =
+          get_index(p_rows, p_cols, width+maskwidth-1, height+maskwidth-1);
+      int orig_index =
+          get_index(p_rows-maskwidth/2, p_cols-maskwidth/2, width, height);
+      red = get_red(pixels[orig_index]);
+      green = get_green(pixels[orig_index]);
+      blue = get_blue(pixels[orig_index]);
+      padded[p_index] = (red+green+blue)/3;
+    }
+  }
+
+
+  int[] masked = alloc_array(int, width*height);
+  //@assert \length(masked) == \length(pixels);
+
+  //move mask along padded array, dot mask with center pixel,
+  //then add this new value to a result array called masked
+  for (int p_rows = maskwidth/2; p_rows < height+maskwidth/2; p_rows++)
+  //@loop_invariant maskwidth/2 <= p_rows && p_rows <= height+maskwidth-1;
+  {
+    for(int p_cols = maskwidth/2; p_cols < width+maskwidth/2; p_cols++)
+    //@loop_invariant maskwidth/2 <= p_cols && p_cols <= width+maskwidth-1;
+    {
+      int mask_sum = 0;
+      int m = 0;
+      for(int m_rows = p_rows-maskwidth/2;
+          m_rows < (p_rows+maskwidth/2)+1; m_rows++)
+      /*@loop_invariant p_rows-maskwidth/2 <= m_rows
+        @            && m_rows <= (p_rows-maskwidth/2)+maskwidth; @*/
+      {
+        for(int m_cols = p_cols-maskwidth/2;
+            m_cols < (p_cols+maskwidth/2)+1; m_cols++)
+        /*@loop_invariant p_cols-maskwidth/2 <= m_cols
+          @            && m_cols <= (p_cols-maskwidth/2)+maskwidth; @*/
+        {
+          int pad_index =
+              get_index(m_rows, m_cols, width+maskwidth-1, height+maskwidth-1);
+
+          mask_sum = mask_sum+mask[m]*padded[pad_index];
+          m++;
+        }
+      }
+
+      int mask_index =
+          get_index(p_rows-maskwidth/2, p_cols-maskwidth/2, width, height);
+      masked[mask_index] = mask_sum;
+    }
+  }
+
+  return masked;
+}

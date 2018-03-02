@@ -1,0 +1,30 @@
+#use <conio>
+#use <parse>
+
+bool arr_eq(int[] A, int n, int[] B, int m)
+//@requires 0 <= n && n <= \length(A);
+//@requires 0 <= m && m <= \length(B);
+{
+  if (n != m){
+    return false;
+  }
+  else {
+    for (int i = 0; i < n; i++){
+      if (A[i] != B[i]){
+        return false;
+      }
+    }
+
+    return true;
+}
+
+bool run_tests() {
+    //Remember - this function should return whether
+    //ALL tests pass!
+  int[] A = parse_ints("0 1 2 3 4", 10);
+  int[] B = parse_ints("0 1 2 3 4", 10);
+  int[] intersection = parse_ints("0 0 0 0 0", 10);
+  assert(intersect(A, 5, B, 5, intersect) == 5);
+
+    return true; //No tests, so they all fail right?
+}

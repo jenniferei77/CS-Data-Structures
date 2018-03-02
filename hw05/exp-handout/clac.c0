@@ -1,0 +1,83 @@
+#use <conio>
+
+//This POW function was taken from c0
+//tutorial on loop invariants
+int POW(int x, int y)
+//@requires y >= 0;
+{
+  if (y == 0){
+    return 1;
+  } else {
+    return x * POW(x,y-1);
+  }
+}
+
+
+
+void eval(istack_t S, queue_t Q)
+//@requires S != NULL && Q != NULL;
+//@ensures queue_empty(Q);
+{
+  string popped = "I'm pop";
+  int to_stack = 0;
+  int* num = alloc(int);
+  int y = 0;
+  int x = 0;
+  while (!queue_empty(Q))
+  {
+    popped = deq(Q);
+    if (parse_int(popped,10) != NULL)
+    {
+      num = parse_int(popped,10);
+      to_stack = *num;
+      ipush(S,to_stack);
+    }
+    else
+    {
+
+      y = ipop(S);
+      x = ipop(S);
+      if (string_equal(popped, "+"))
+      {
+        to_stack = x + y;
+        ipush(S,to_stack);
+      }
+      else if (string_equal(popped,"-"))
+      {
+        to_stack = x - y;
+        ipush(S,to_stack);
+      }
+      else if (string_equal(popped, "*"))
+      {
+        to_stack = x * y;
+        ipush(S,to_stack);
+      }
+      else if (string_equal(popped, "/"))
+      {
+        if (y == 0 || (x == POW(-2,31) && y == -1))
+        {
+          error("Tried to calculate x/y where y=0 or x=-2^31 and y=-1");
+        }
+        else
+        {
+          to_stack = x / y;
+          ipush(S,to_stack);
+        }
+      }
+      else if (string_equal(popped, "**"))
+      {
+        if (y < 0)
+          {
+            error("Tried to calculate x^y where y<0");
+          }
+        else
+        {
+          to_stack = POW(x,y);
+          ipush(S,to_stack);
+        }
+      }
+    }
+  }
+}
+
+

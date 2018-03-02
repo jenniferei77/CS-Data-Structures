@@ -1,0 +1,73 @@
+#use <conio>
+#use <string>
+#use <parse>
+#use <args>
+#use <util>
+
+int main()
+{
+
+  //Normal Example
+  int v = 7;
+  int[] freq = alloc_array(int, v);
+  string[] vocab = parse_tokens("alpha burrow his is list of out");
+  int occur = count_vocab(vocab, freq, v, "texts/scott_tweet.txt", true);
+  //@assert occur == 1;
+  /*@assert freq[0] == 0 && freq[1] == 1 && freq[2] == 1
+    @    && freq[3] == 1 && freq[4] == 0 && freq[5] == 1
+    @    && freq[6] == 1; @*/
+
+  sort_by_freq(vocab, freq, v);
+  /*@assert string_compare(vocab[0],"alpha") == 0
+    @    && string_compare(vocab[1],"list") == 0
+    @    && string_compare(vocab[2],"burrow") == 0
+    @    && string_compare(vocab[3],"his") == 0
+    @    && string_compare(vocab[4],"is") == 0
+    @    && string_compare(vocab[5],"of") == 0
+    @    && string_compare(vocab[6],"out") == 0; @*/
+  /*@assert freq[0] == 0 && freq[1] == 0 && freq[2] == 1
+    @    && freq[3] == 1 && freq[4] == 1 && freq[5] ==1; @*/
+
+  //When all frequencies are the same
+  int v1 = 5;
+  int[] freq1 = alloc_array(int, v1);
+  string[] vocab1 = parse_tokens("burrow his is of out");
+  int occur1 = count_vocab(vocab1, freq1, v1, "texts/scott_tweet.txt", true);
+  //@assert occur1 == 1;
+  /*@assert freq1[0] == freq1[1] && freq1[1] == freq1[2] && freq1[2] == freq1[3]
+    @                 && freq1[3] == freq1[4] && freq1[4] == 1; @*/
+  int[] freq1p = parse_ints("1 1 1 1 1", 10);
+  string[] vocab1p = parse_tokens("burrow his is of out");
+  sort_by_freq(vocab1, freq1, v1);
+  /*@assert string_compare(vocab1p[0],vocab1[0]) == 0
+    @    && string_compare(vocab1p[1],vocab1[1]) == 0
+    @    && string_compare(vocab1p[2],vocab1[2]) == 0
+    @    && string_compare(vocab1p[3],vocab1[3]) == 0
+    @    && string_compare(vocab1p[4],vocab1[4]) == 0;  @*/
+
+
+  //When no words from corpus are in vocab dictionary
+  int v2 = 3;
+  int[] freq2 = alloc_array(int, v2);
+  string[] vocab2 = parse_tokens("alph beta eta");
+  int occur2 = count_vocab(vocab2, freq2, v2, "texts/scott_tweet.txt", true);
+  //@assert occur2 == 6;
+  //@assert freq2[0] == 0 && freq2[0] == freq2[1] && freq2[1] == freq2[2];
+  int[] freq2p = parse_ints("0 0 0", 10);
+  string[] vocab2p = parse_tokens("alph beta eta");
+  sort_by_freq(vocab2, freq2, v2);
+  /*@assert string_compare(vocab2p[0],vocab2[0]) == 0
+    @    && string_compare(vocab2p[1],vocab2[1]) == 0
+    @    && string_compare(vocab2p[2],vocab2[2]) == 0;  @*/
+
+  //When there is no dictionary
+  int v3 = 0;
+  int[] freq3 = alloc_array(int, v3);
+  string[] vocab3 = parse_tokens("");
+  int occur3 = count_vocab(vocab3, freq3, v3, "texts/scott_tweet.txt", true);
+  //@assert occur3 == 6;
+
+
+
+  return 0;
+}

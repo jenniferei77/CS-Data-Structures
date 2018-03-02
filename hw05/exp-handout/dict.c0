@@ -1,0 +1,71 @@
+#use <string>
+#use <conio>
+
+// typedef _____* dict_t;
+
+struct dict_node {
+  string[] op;
+  int[] prec;
+  int size;
+};
+
+typedef struct dict_node* dict_t;
+
+dict_t dict_new(string[] A, int n)
+//@requires \length(A) == n;
+//@requires is_infix_array(A, n);
+{
+  dict_t list = alloc(struct dict_node);
+  string[] sub_A;
+  int sub_size;
+  int total_size = 0;
+
+  for (int i = 0; i < n; i++)
+  {
+    total_size = total_size + num_tokens(A[i]);
+  }
+
+  list->op = alloc_array(string, total_size);
+  list->prec = alloc_array(int, total_size);
+  int count = 0;
+
+  for (int i = 0; i < n; i++)
+  {
+    sub_A = parse_tokens(A[i]);
+    sub_size = num_tokens(A[i]);
+    for (int j = 0; j < sub_size; j++)
+    {
+      for (int k = 0; k < count; k++)
+      {
+        if (string_equal(list->op[k],sub_A[j]))
+        {
+          return NULL;
+        }
+      }
+      list->op[count] = sub_A[j];
+      list->prec[count] = i;
+      count = count + 1;
+
+    }
+  }
+  list->size = count;
+  return list;
+}
+
+
+int dict_lookup(dict_t D, string oper)
+//@requires D != NULL;
+//@ensures \result >= -1;
+{
+  for (int i = 0; i < D->size; i++)
+  {
+    if (string_equal(D->op[i],oper))
+    {
+      return D->prec[i];
+    }
+  }
+
+  return -1;
+
+}
+
