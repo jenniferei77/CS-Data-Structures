@@ -1,0 +1,185 @@
+/*
+ * Text buffers as doubly linked lists.
+ *
+ * 15-122 Principles of Imperative Computation */
+
+/*** Interface ***/
+
+typedef struct dll_node dll;
+struct dll_node {
+  char data;
+  dll* next;
+  dll* prev;
+};
+
+typedef struct tbuf_header tbuf;
+struct tbuf_header {
+  dll* start;  /* the fist node of the list (on the left)  */
+  dll* cursor; /* the position where the cursor is displayed */
+  dll* end;    /* the last node of the list (on the right) */
+};
+
+bool is_dll_segment(dll* a, dll* b)
+{
+  if (a == NULL || b == NULL) return false;
+  if (a == b) return true;
+  if (a->next != NULL)
+  {
+    if (a->next->prev != a) return false;
+  }
+  return is_dll_segment(a->next,b);
+}
+
+
+bool is_tbuf(tbuf* B)
+{
+  if (B == NULL || B->start == NULL
+    || B->end == NULL || B->cursor == NULL) return false;
+  bool status = true;
+  bool stat_cur = false;
+  dll* p1 = B->start;
+  dll* p2 = B->end;
+  if (p1 == p2) return false;
+  if (p1->next == p2 && p2->prev == p1) return true;
+  status = is_dll_segment(p1, p2);
+  if (!status) return false;
+
+  dll* n1 = B->start;
+  dll* n2 = B->end;
+  dll* cursor = B->cursor;
+  if (n1 == cursor) return false;
+  while (n1 != n2)
+  {
+    if (n1 == cursor || n2 == cursor)
+    {
+      stat_cur = true;
+    }
+    n1 = n1->next;
+  }
+  return stat_cur && status;
+}
+
+bool tbuf_at_left(tbuf* B)            /* Returns true if the cursor       */
+//@requires is_tbuf(B);
+{
+  if (B->cursor == B->start->next) return true;
+  return false;
+
+}                                      /* is in leftmost position          */
+bool tbuf_at_right(tbuf* B)            /* Returns true if the cursor       */
+//@requires is_tbuf(B);
+{
+  if (B->cursor == B->end) return true;
+  return false;
+}
+
+                                       /* is in rightmost position         */
+tbuf* tbuf_new()                      /* Creates a new, empty text buffer */
+//@ensures is_tbuf(\result);
+{
+  tbuf* B = alloc(tbuf);
+  dll* start_node = alloc(dll);
+  dll* end_node = alloc(dll);
+  B->start = start_node;
+  B->end = end_node;
+  B->start->next = end_node;
+  B->end->prev = start_node;
+  B->cursor = end_node;
+
+  return B;
+}
+
+void tbuf_forward(tbuf* B)             /* Moves the cursor forward (right) */
+//@requires is_tbuf(B);
+//@requires !tbuf_at_right(B);
+{
+  B->cursor = B->cursor->next;
+}
+
+void tbuf_backward(tbuf* B)           /* Moves the cursor backward (left) */
+//@requires is_tbuf(B);
+//@requires !tbuf_at_left(B);
+{
+  B->cursor = B->cursor->prev;
+}
+
+void tbuf_insert(tbuf* B, char c)     /* Insert a character before cursor */
+//@requires is_tbuf(B);
+{
+  dll* nodeL = B->cursor->prev;
+  dll* nodeR = B->cursor;
+  dll* new = alloc(dll);
+
+  new->data = c;
+  new->next = nodeR;
+  new->prev = nodeL;
+  nodeL->next = new;
+  nodeR->prev = new;
+
+}
+char tbuf_delete(tbuf* B)             /* Remove character before cursor   */
+//@requires is_tbuf(B);              /* (and returns the deleted char)   */
+//@requires !tbuf_at_left(B);
+{
+  dll* nodeL = B->cursor->prev->prev;
+  dll* nodeR = B->cursor;
+  dll* nodeDel = B->cursor->prev;
+
+  nodeL->next = nodeR;
+  nodeR->prev = nodeL;
+
+  nodeDel->next = NULL;
+  nodeDel->prev = NULL;
+
+  return nodeDel->data;
+}
+
+int tbuf_row(tbuf* B)                 /* Returns the row of the cursor    */
+//@requires is_tbuf(B);
+{
+  dll* p1 = B->start;
+  dll* p2 = B->end;
+  int row = 1;
+  while(p1 != B->cursor)
+  {
+    if (p1->data == '\n')
+    {
+      row = row + 1;
+    }
+    p1 = p1->next;
+  }
+
+  if (B->cursor->data == '\n')
+  {
+    return row;
+  }
+  else
+  {
+    return row;
+  }
+}
+int tbuf_col(tbuf* B)                 /* Returns the column of the cursor */
+//@requires is_tbuf(B);
+{
+  dll* p1 = B->start->next;
+  dll* p2 = B->end;
+  int col = 0;
+  while(p1 != B->cursor)
+  {
+    if (p1->data == '\n')
+    {
+      col = 0;
+    }
+    else
+    {
+      col = col+1;
+    }
+    p1 = p1->next;
+  }
+  if (p1->prev->data == '\n')
+  {
+    col = 0;
+  }
+  return col;
+}
+/*** Implementation ***/

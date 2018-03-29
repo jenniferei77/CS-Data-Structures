@@ -1,0 +1,10 @@
+#use <string>
+#use <conio>
+
+int main()  {
+
+  tbuf* B = alloc(tbuf);
+  assert(false == is_tbuf(B));
+
+  return 0;
+}

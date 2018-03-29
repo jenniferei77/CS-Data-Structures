@@ -1,0 +1,311 @@
+/*
+ * Ropes
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <conio>
+#use <string>
+#use <util>
+
+/************************************/
+/* Interface (leave this in place!) */
+/************************************/
+
+// typedef _______ rope_t;
+typedef struct rope_node* rope_t;
+
+int rope_length(rope_t R)
+  /*@ensures \result >= 0; @*/ ;
+rope_t rope_new(string s)
+  /*@ensures rope_length(\result) == string_length(s); @*/ ;
+rope_t rope_join(rope_t R, rope_t S)
+  /*@requires rope_length(R) <= int_max() - rope_length(S); @*/
+  /*@ensures rope_length(\result) == rope_length(R) + rope_length(S); @*/ ;
+string rope_tostring(rope_t R)
+  /*@ensures string_length(\result) == rope_length(R); @*/ ;
+char rope_charat(rope_t R, int i)
+  /*@requires 0 <= i && i < rope_length(R); @*/ ;
+rope_t rope_sub(rope_t R, int lo, int hi)
+  /*@requires 0 <= lo && lo <= hi && hi <= rope_length(R); @*/
+  /*@ensures rope_length(\result) == hi - lo; @*/ ;
+void rope_reduce(rope_t[] A, int n)
+  /*@requires n == \length(A); @*/ ;
+bool is_leaf(rope_t R);
+bool is_non_leaf(rope_t R);
+bool is_rope(rope_t R);
+
+/***********************************/
+/* Implementation (edit this part) */
+/***********************************/
+typedef struct rope_node rope;
+struct rope_node{
+  int len;
+  rope* left;
+  rope* right;
+  string data;
+};
+
+
+int rope_length(rope_t R)
+//@ensures \result >= 0;
+{
+  if (R == NULL) return 0;
+  return R->len;
+}
+
+bool is_leaf(rope_t R)
+{
+  return R != NULL
+    && 0 != string_compare(R->data, "")
+    && R->left == NULL
+    && R->right == NULL
+    && R-> len > 0
+    && R->len == string_length(R->data);
+}
+
+bool is_non_leaf(rope_t R)
+{
+  return R != NULL
+    && R->left != NULL
+    && R->right != NULL
+    && R->len == rope_length(R->left) + rope_length(R->right)
+    && is_rope(R->left)
+    && is_rope(R->right);
+}
+
+bool is_rope(rope_t R)
+{
+
+  bool check_type =  R == NULL
+    || is_leaf(R)
+    || is_non_leaf(R);
+  //bool circular = false;
+  //if (is_non_leaf(R))
+  //{
+  //  circular = R->len > R->left->len
+  //    && R->len > R->right->len;
+ // }
+
+  return check_type; //&& circular;
+}
+
+
+rope_t rope_new(string s)
+//@ensures rope_length(\result) == string_length(s);
+{
+  rope_t R = alloc(rope);
+  R->len = string_length(s);
+  R->data = s;
+  R->left = NULL;
+  R->right = NULL;
+  return R;
+}
+
+
+
+
+rope_t rope_join(rope_t R, rope_t S)
+//@requires rope_length(R) <= int_max() - rope_length(S);
+//@ensures rope_length(\result) == rope_length(R) + rope_length(S);
+{
+  string str = "";
+  if (R == NULL && S == NULL) 
+  {
+    str = "";
+  }
+  else if (R == NULL)
+  {
+    str = S->data;
+  }
+  else if (S == NULL)
+  {
+    str = R->data;
+  }
+  else
+  {
+    str = string_join(R->data,S->data);
+  }
+  rope_t R_new = rope_new(str);
+  R_new->len = string_length(str);
+  R_new->left = R;
+  R_new->right = S;
+  return R_new;
+}
+
+char rope_charat(rope_t R, int i)
+//@requires 0 <= i && i < rope_length(R);
+{
+  if (is_non_leaf(R))
+  {
+    if (rope_length(R->left) > i) return rope_charat(R->left, i);
+
+    else {
+      return rope_charat(R->right, i-rope_length(R->left));
+    }
+  }
+  else if (is_leaf(R))
+  {
+    char[] char_arr = string_to_chararray(R->data);
+    return char_arr[i];
+  }
+  else return '\0';
+}
+
+string str_make(rope_t R, string str)
+{
+  if (is_non_leaf(R))
+  {
+    if (is_non_leaf(R->left)) str = str_make(R->left, str);
+    else if (is_leaf(R->left)) str = string_join(str, R->left->data);
+    if (is_non_leaf(R->right)) str = str_make(R->right, str);
+    else if (is_leaf(R->right)) str = string_join(str, R->right->data);
+    return str;
+  }
+  else if (is_leaf(R))
+  {
+    return string_join(str, R->data);
+  }
+  return "";
+}
+
+string rope_tostring(rope_t R)
+//@ensures string_length(\result) == rope_length(R);
+{
+  if (R == NULL) return "";
+  string str = "";
+  str = str_make(R, str);
+  return str;
+}
+
+rope_t rope_sub(rope_t R, int lo, int hi)
+//@requires 0 <= lo && lo <= hi && hi <= rope_length(R);
+{
+  //when lo == hi??
+  if (lo == hi) return NULL;
+  //when want to return the whole tree
+  if (lo == 0 && hi == rope_length(R) return R;
+
+  //if lo and hi part of same node, so need to create node
+  if (is_leaf(R))
+  {
+     string str = string_sub(R->data, lo, hi);
+     rope_t R_new = rope_new(str);
+     return R_new;
+  }
+  //if lo and hi both in left rope
+  else if (lo <= rope_length(R->left) && hi <= rope_length(R->left))
+  {
+    rope_t R_new = rope_sub(R->left, lo, hi);
+    return R_new;
+  }
+  //if lo and hi both in right rope
+  else if (lo > rope_length(R->left))
+  {
+    rope_t R_new = rope_sub(R->right, lo-rope_length(R->left), hi-rope_length(R->left));
+    return R_new;
+  }
+  //if lo in left branch and hi in right branch
+  else
+  {
+    rope_t R_left = rope_sub(R->left, lo, rope_length(R->left));
+    rope_t R_right = rope_sub(R->right, 0, hi-rope_length(R->left));
+    rope_t R_full = rope_join(R_left, R_right);
+    return R_full;
+  }
+
+}
+
+
+void helper(rope_t R, hdict* H)
+{
+  if (is_non_leaf(R))
+  {
+    string* key_pt = alloc(string);
+    *key_pt = rope_tostring(R);
+    key k = (void*)key_pt;
+    value v = (void*)R;
+    
+    if (NULL == hdict_lookup(H, k))
+    {
+      hdict_insert(H, k, v);
+    }
+    else
+    {
+      value R_val = hdict_lookup(H, k);
+      R = (rope_t)R_val;
+    }
+    helper(R->left, H);
+    helper(R->right, H);
+  }
+  else if (is_leaf(R))
+  {
+    string* key_pt = alloc(string);
+    *key_pt = R->data;
+    key k = (void*)key_pt;
+    value v = (void*)R;
+    if (NULL == hdict_lookup(H, k))
+    {
+      hdict_insert(H, k, v);
+    }
+    else
+    {
+      value R_val = hdict_lookup(H,k);
+      R = (rope_t)R_val;
+    }
+  }
+  return;
+
+
+}
+
+bool equiv(key x, key y)
+{
+  string* x_val = (string*)x;
+  string* y_val = (string*)y;
+  return string_equal(*x_val,*y_val);
+}
+
+int hash(key x)
+{
+  string* s = (string*)x;
+  char c0 = string_charat(*s,0);
+  int c = char_ord(c0);
+  int sum = 1664525*c + 1013904223;
+  int size = string_length(*s);
+  for (int i = 1; i < size; i++)
+  {
+    c0 = string_charat(*s,i);
+    c = char_ord(c0);
+    sum = 1554525*(sum+c)+1013904223;
+  }
+  return sum;
+}
+
+void rope_reduce(rope_t[] A, int n)
+//@requires n == \length(A);
+{
+  
+  int capacity = n*2;
+  hdict* H = hdict_new(capacity, &equiv, &hash); 
+  
+  for (int i=0; i<n; i++)
+  {
+    rope_t R = A[i];
+    helper(R,H);
+
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

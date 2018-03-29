@@ -1,0 +1,87 @@
+#use <conio>
+#use <string>
+#use <util>
+
+
+
+
+
+
+
+int main()
+{
+  rope_t R_null = NULL;
+  //@assert !is_leaf(R_null);
+  //@assert !is_non_leaf(R_null);
+  //@assert is_rope(R_null);
+  //@assert 0 == rope_length(R_null);
+
+  rope_t R_L = rope_new("totally");
+  //@assert (7 == rope_length(R_L));
+  R_L->left = rope_new("t");
+  //@assert (7 == rope_length(R_L));
+  //@assert (1 == rope_length(R_L->left));
+  R_L->right = rope_new("otally");
+  //@assert (6 == rope_length(R_L->right));
+  //@assert (R_L->left != NULL);
+  //@assert (R_L->left->left == NULL);
+  //@assert (is_leaf(R_L->left));
+  //@assert (is_non_leaf(R_L));
+  //@assert (is_rope(R_L));
+
+  rope_t half_null = rope_join(R_L, R_null);
+  //@assert half_null->right == NULL;
+  //@assert is_non_leaf(half_null);
+  //@assert is_rope(half_null);
+  //@assert rope_length(half_null) == rope_length(R_L);
+
+  rope_t R_R = rope_new("efficient");
+  //@assert (9 == rope_length(R_R));
+  R_R->left = rope_new("efficien");
+  R_R->right = rope_new("t");
+  //@assert (R_R->left != NULL);
+  //@assert (R_R->left->left == NULL);
+  //@assert (is_leaf(R_L->left));
+  rope_t R_full = rope_join(R_L, R_R);
+  //@assert(R_full->len == (R_full->left->len + R_full->right->len));
+  //@assert(is_rope(R_full->left));
+  //@assert(is_rope(R_full->right));
+  //@assert is_rope(R_full);
+  //@assert 16 == rope_length(R_full);
+
+  char carrot = rope_charat(R_full, 10);
+  //@assert is_non_leaf(R_full);
+  //@assert carrot == 'i';
+  //@assert rope_charat(R_full, 0) == 't';
+  //@assert rope_charat(R_full, 15) == 't';
+
+  string full = rope_tostring(R_full);
+  //@assert true == string_equal(full, "totallyefficient");
+  return 0;
+
+  rope_t R1 = rope_sub(R_full, 1, 16);
+  //@assert is_rope(R1);
+  //@assert string_equal(rope_tostring(R1), "otallyefficient") == true;
+  //@assert is_non_leaf(R1->right);
+
+
+  rope_t R2 = rope_sub(R_full, 1, 11);
+  //@assert is_rope(R2);
+  //@assert string_equal(rope_tostring(R2), "otallyeffi") == true;
+  //@assert is_leaf(R2->right);
+  //@assert is_leaf(R2->left);
+
+  rope_t R3 = rope_sub(R_full, 2, 11);
+  //@assert is_rope(R3);
+  //@assert string_equal(rope_tostring(R3), "tallyeffi") == true;
+  //@assert is_leaf(R3->right);
+  //@assert is_leaf(R3->left);
+
+  rope_t R4 = rope_sub(R_full, 0, 11);
+  //@assert is_rope(R4);
+  //@assert string_equal(rope_tostring(R4), "totallyeffi") == true;
+  //@assert is_non_leaf(R4->left);
+
+
+}
+

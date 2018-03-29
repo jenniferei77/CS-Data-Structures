@@ -1,0 +1,38 @@
+#use <string>
+
+typedef struct prof prof_t;
+struct prof {
+	string name;
+	string title;
+	string office;
+	string email;
+	int area_code; // 0 if no phone number
+	int phone; // 0 if no phone number
+};
+
+int hash_string(string s) {
+    int size = string_length(s);
+    char c0 = string_charat(s,0);
+    int c = char_ord(c0);
+    int sum = c;
+    for (int i = 1; i < size; i++)
+    {
+      sum = sum*32;
+      c0 = string_charat(s,i);
+      c = char_ord(c0);
+      sum = sum + c;
+    }
+    return sum; // IMPLEMENT ME
+}
+
+
+int hash_prof(prof_t *prof) {
+  int name = hash_string(prof->name)/6;
+  int title = hash_string(prof->title)/6;
+  //int office = hash_string(prof->office)/6;
+  //int email = hash_string(prof->office)/6;
+  //int key = name + title + office + email + prof->area_code + prof->phone;
+
+  return name*3 + title/10 + prof->phone/;
+  //return name + title + prof->phone;
+}

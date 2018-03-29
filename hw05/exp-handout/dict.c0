@@ -11,9 +11,17 @@ struct dict_node {
 
 typedef struct dict_node* dict_t;
 
+bool is_dict(dict_t D)
+{
+  //@assert \length(D->op) == \length(D->prec) && \length(D->op) == D->size;
+  if (D == NULL) return false;
+  return true;
+}
+
 dict_t dict_new(string[] A, int n)
 //@requires \length(A) == n;
 //@requires is_infix_array(A, n);
+//@ensures is_dict(\result);
 {
   dict_t list = alloc(struct dict_node);
   string[] sub_A;
@@ -54,7 +62,7 @@ dict_t dict_new(string[] A, int n)
 
 
 int dict_lookup(dict_t D, string oper)
-//@requires D != NULL;
+//@requires is_dict(D);
 //@ensures \result >= -1;
 {
   for (int i = 0; i < D->size; i++)

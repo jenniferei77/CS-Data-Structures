@@ -5,6 +5,10 @@ bool is_precstack(dict_t D, stack_t S)
 //@requires D != NULL && S != NULL;
 
 {
+  if (stack_empty(S))
+  {
+    return true;
+  }
   string popped = "hi";
   stack_t T = stack_new();
   stack_t temp = stack_new();
@@ -17,16 +21,26 @@ bool is_precstack(dict_t D, stack_t S)
   {
     popped = pop(temp);
     push(T,popped);
+    push(S,popped);
   }
   string larger = "im large";
   string smaller = "im small";
   int Lprec = 0;
   int Sprec = 0;
 
-  larger = pop(T);
-  push(S,larger);
-  smaller = pop(T);
-  push(S,smaller);
+  if (!stack_empty(T))
+  {
+    larger = pop(T);
+    if (!stack_empty(T))
+    {
+      smaller = pop(T);
+    }
+    else
+    {
+      return true;
+    }
+  }
+
   bool exit = true;
   while(!stack_empty(T))
   {
@@ -39,7 +53,7 @@ bool is_precstack(dict_t D, stack_t S)
     }
     larger = smaller;
     smaller = pop(T);
-    push(S,smaller);
+
   }
 
   return exit;
@@ -70,14 +84,14 @@ queue_t parse(dict_t D, queue_t input)
     if (parse_int(token,10) != NULL)
     {
       //Check if previous phase was also int
-      //if (type == 0)
-      //{
-      //  return NULL;
-      //}
-      //else
-      //{
-      //  type = 0;
-      //}
+      if (type == 0)
+      {
+        return NULL;
+      }
+      else
+      {
+        type = 0;
+      }
 
       //Put int on output queue
       enq(out,token);
@@ -86,20 +100,19 @@ queue_t parse(dict_t D, queue_t input)
     else if (dict_lookup(D,token) != -1)
     {
       //Check if previous phase was also oper
-      //if (type == 1)
-      //{
-      //  return NULL;
-      //}
-      //else
-      //{
-      //  type = 1;
-      //}
+      if (type == 1)
+      {
+        return NULL;
+      }
+      else
+      {
+        type = 1;
+      }
 
       //If first operator detected
       if (stack_empty(op_stack))
       {
         push(op_stack,token);
-        type = 0;
       }
       //If operators already on stack
       else
@@ -118,7 +131,7 @@ queue_t parse(dict_t D, queue_t input)
         else
         {
           //Queue ops on stack of higher or equal prec
-          while (dict_lookup(D,check) > dict_lookup(D,token))
+          while (dict_lookup(D,check) >= dict_lookup(D,token))
           {
             enq(out,check);
             check = "@";
@@ -129,8 +142,10 @@ queue_t parse(dict_t D, queue_t input)
             }
           }
           //If op_stack now empty but still need to check last pop
-          if (dict_lookup(D,check) == dict_lookup(D,token))
+          if (dict_lookup(D,check) < dict_lookup(D,token)
+            && !string_equal("@",check))
           {
+            push(op_stack,check);
             push(op_stack,token);
           }
           else
@@ -138,6 +153,10 @@ queue_t parse(dict_t D, queue_t input)
             push(op_stack,token);
           }
         }
+      }
+      if (!is_precstack(D,op_stack))
+      {
+        println("Not sorted");
       }
     }
     //If token is not an int or valid operator
@@ -155,6 +174,8 @@ queue_t parse(dict_t D, queue_t input)
     last = pop(op_stack);
     enq(out,last);
   }
+
+
 
   return out;
 

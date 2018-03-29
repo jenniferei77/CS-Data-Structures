@@ -1,0 +1,85 @@
+#use <string>
+#use <conio>
+#use <util>
+
+typedef struct bloom_filter* bloom_t;
+typedef struct bloom_filter bloom;
+struct bloom_filter {
+  bool[] data;
+  int capacity;  //capacity == \length(data)
+};
+
+
+int hash_mul31(string s) {
+  int size = string_length(s);
+  if (size == 0)
+  {
+    return 0;
+  }
+  char c0 = string_charat(s, 0);
+  int c = char_ord(c0);
+  int sum = c;
+  for (int i=1; i<size; i++)
+  {
+    sum = sum*31;
+    c0 = string_charat(s,i);
+    c = char_ord(c0);
+    sum = sum + c;
+  }
+
+  return sum;
+}
+
+int get_index(int hash_val, int capacity)
+{
+  return abs(hash_val % capacity);
+}
+
+bool is_length(bloom* B)
+//@requires \length(B->data) == B->capacity;
+{
+  return true;
+}
+bool is_bloom(bloom* B)
+{
+  if (B == NULL) return false;
+  if (B->capacity > 0 && is_length(B)) return true;
+  return false;
+}
+
+bloom* bloom_new(int table_size)
+//@requires table_size > 0;
+//@ensures is_bloom(\result);
+{
+  bloom* B = alloc(bloom);
+  B->data = alloc_array(bool, table_size);
+  B->capacity = table_size;
+
+  return B;
+}
+
+bool bloom_contains(bloom* B, string x)
+//@requires is_bloom(B);
+{
+  int hash = hash_mul31(x);
+  int ind = get_index(hash, B->capacity);
+  if (B->data[ind] == true) return true;
+  return false;
+}
+
+void bloom_add(bloom* B, string x)
+//@requires is_bloom(B);
+//@ensures is_bloom(B);
+//@ensures bloom_contains(B, x);
+{
+  if (bloom_contains(B, x) == false)
+  {
+    int hash = hash_mul31(x);
+    int ind = get_index(hash, B->capacity);
+    B->data[ind] = true;
+  }
+}
+
+
+
+

@@ -1,0 +1,156 @@
+#use <util>
+#use <string>
+#use <conio>
+
+int hash1(string s)
+{
+  int size = string_length(s);
+  if (size == 0) return 0;
+  char c0 = string_charat(s, 0);
+  int c = char_ord(c0);
+  int sum = 1664525*c + 1013904223;
+
+  for (int i=1; i<size; i++)
+  {
+    c0 = string_charat(s,i);
+    c = char_ord(c0);
+    sum = 1664525*(sum+c) + 1013904223;
+  }
+
+  return sum;
+}
+
+int hash2(string s)
+{
+  int size = string_length(s);
+  if (size == 0) return 0;
+  char c0 = string_charat(s, 0);
+  int c = char_ord(c0);
+  int sum = c;
+
+  for (int i=1; i<size; i++)
+  {
+    sum = sum*31;
+    c0 = string_charat(s,i);
+    c = char_ord(c0);
+    sum = sum + c;
+  }
+
+  return sum;
+}
+
+int hash3(string s)
+{
+  int size = string_length(s);
+  if (size == 0) return 0;
+  char c0 = string_charat(s, 0);
+  int c = char_ord(c0);
+  int sum = 1664525*c + c/500 + 104856392;
+
+  for (int i=1; i<size; i++)
+  {
+    c0 = string_charat(s,i);
+    c = char_ord(c0);
+    sum = 1664525*(sum+c) + c/500 + 104856392;
+  }
+
+  return sum;
+}
+
+bool get_bit(int[] A, int i)
+//@requires 0 <= i && i/32 < \length(A);
+{
+  //Acces the integer index in the table
+  int num = A[i/32];
+  //check if the bit i is 1 or 0
+  int dec = num >> (i%32) & 1;
+  if (dec == 1) return true;
+  return false;
+}
+
+void set_bit(int[] A, int i)
+//@requires 0 <= i && i/32 < \length(A);
+//@ensures get_bit(A,i);
+{
+  //Acces the integer index in the table
+  int num = A[i/32];
+  //Create a mask over the bit index of the correct integer
+  int mask = 1 << (i%32);
+  //Mask the correct integer to set the ith bit to 1
+  int dec = num | mask;
+  //Store the changed integer in array A
+  A[i/32] = dec;
+}
+
+typedef struct bloom_filter* bloom_t;
+typedef struct bloom_filter bloom;
+
+struct bloom_filter {
+  int[] data;
+  int limit; //limit == \length(data)
+};
+
+int get_index(int hash_val, int capacity)
+{
+  return abs(hash_val % capacity);
+}
+
+bool is_length(bloom* B)
+//@requires \length(B->data) == B->limit;
+{
+  return true;
+}
+
+bool is_bloom(bloom* B)
+{
+  if (B == NULL) return false;
+  if (B->limit > 0 && is_length(B)) return true;
+  return false;
+}
+
+bloom* bloom_new(int n)
+//@requires n > 0;
+//@ensures is_bloom(\result);
+{
+  bloom* B = alloc(bloom);
+  B->limit = (n-1)/32 + 1;
+  B->data = alloc_array(int, (n-1)/32 + 1);
+
+
+  return B;
+}
+
+bool bloom_contains(bloom* B, string x)
+//@requires is_bloom(B);
+{
+  int hash1 = hash1(x);
+  int hash2 = hash2(x);
+  int hash3 = hash3(x);
+  int ind1 = get_index(hash1, (B->limit)*32);
+  int ind2 = get_index(hash2, (B->limit)*32);
+  int ind3 = get_index(hash3, (B->limit)*32);
+  bool works = get_bit(B->data, ind1)
+           && get_bit(B->data, ind2)
+           && get_bit(B->data, ind3);
+  return works;
+}
+
+void bloom_add(bloom* B, string x)
+//@requires is_bloom(B);
+//@ensures is_bloom(B);
+//@ensures bloom_contains(B, x);
+{
+  int hash1 = hash1(x);
+  int hash2 = hash2(x);
+  int hash3 = hash3(x);
+  int ind1 = get_index(hash1, (B->limit)*32);
+  int ind2 = get_index(hash2, (B->limit)*32);
+  int ind3 = get_index(hash3, (B->limit)*32);
+  set_bit(B->data, ind1);
+  set_bit(B->data, ind2);
+  set_bit(B->data, ind3);
+}
+
+
+
+

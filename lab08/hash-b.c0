@@ -1,0 +1,35 @@
+#use <string>
+
+typedef struct prof prof_t;
+struct prof {
+	string name;
+	string title;
+	string office;
+	string email;
+	int area_code; // 0 if no phone number
+	int phone; // 0 if no phone number
+};
+
+
+
+int hash_string(string s) {
+    char c0 = string_charat(s,0);
+    int c = char_ord(c0);
+    int sum = 1664525*c + 1013904223;
+    int size = string_length(s);
+    for (int i = 1; i < size; i++)
+    {
+      c0 = string_charat(s,i);
+      c = char_ord(c0);
+      sum = 1554525*(sum+c)+1013904223 ;
+    }
+
+
+    return sum; // IMPLEMENT ME
+}
+
+
+int hash_prof(prof_t *prof) {
+
+  return 0; // IMPLEMENT ME
+}

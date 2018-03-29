@@ -23,19 +23,33 @@ void eval(istack_t S, queue_t Q)
   int* num = alloc(int);
   int y = 0;
   int x = 0;
+  int count = 0;
   while (!queue_empty(Q))
   {
     popped = deq(Q);
+    if (parse_int(popped,10) == NULL && count == 0)
+    {
+      error("First token must be integer");
+    }
+
     if (parse_int(popped,10) != NULL)
     {
       num = parse_int(popped,10);
       to_stack = *num;
       ipush(S,to_stack);
+      count = count + 1;
     }
     else
     {
-
       y = ipop(S);
+      if (count == 0)
+      {
+        error("Cannot calculate when operator first in queue");
+      }
+      if (istack_empty(S))
+      {
+        error("Uneven number of ints to operators");
+      }
       x = ipop(S);
       if (string_equal(popped, "+"))
       {
@@ -75,6 +89,10 @@ void eval(istack_t S, queue_t Q)
           to_stack = POW(x,y);
           ipush(S,to_stack);
         }
+      }
+      else
+      {
+        error("Element not integer or valid operator");
       }
     }
   }

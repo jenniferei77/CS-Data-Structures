@@ -1,0 +1,128 @@
+#use <string>
+#use <conio>
+
+int main()
+{
+  int perf_score = 100;
+  int size = 5;
+  bloom_t B = bloom_new(size);
+  bool change = true;
+  int sub = 1;
+  for (int i=0; i<size+15; i++)
+  {
+
+    //@assert is_bloom(B) == true;
+    if ( true == bloom_contains(B, "howdy"))
+    {
+
+      perf_score = perf_score - sub;
+
+    }
+    else
+    {
+      change = false;
+    }
+    string num = string_fromint(i);
+    bloom_add(B, string_join("hey", num));
+    //@assert (true == bloom_contains(B, string_join("hey", num)));
+
+    if (i == 1)
+    {
+      sub = 2;
+    }
+    if (i == 10)
+    {
+      sub = 1;
+    }
+
+    if (i > 7)
+    {
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-1))));@*/
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-2))));@*/
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-3))));@*/
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-4))));@*/
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-5))));@*/
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-6))));@*/
+      /*@assert (true ==
+           bloom_contains(B, string_join("hey", string_fromint(i-7))));@*/
+    }
+    //@assert is_bloom(B) == true;
+    if (false == bloom_contains(B, string_join("hey", num)))
+    {
+      change = false;
+      perf_score = perf_score - sub;
+
+      //@assert false;
+    }
+
+    if (true == bloom_contains(B, "hi"))
+    {
+      perf_score = perf_score - sub;
+
+    }
+    if (true == bloom_contains(B, "jen"))
+    {
+      perf_score = perf_score - sub;
+
+    }
+  }
+  if (change == true)
+  {
+    return 0;
+  }
+
+
+  bloom_t B2 = bloom_new(3);
+
+  if (bloom_contains(B2, "hey") == true)
+  {
+    perf_score = perf_score - sub;
+
+  }
+  bloom_add(B2, "hey");
+  bloom_add(B2, "jen");
+  bloom_add(B2, "isaza");
+
+  //@assert(true == bloom_contains(B2, "isaza"));
+  //@assert(true == bloom_contains(B2, "jen"));
+  //@assert(true == bloom_contains(B2, "hey"));
+  bloom_add(B2, "hey");
+  bloom_add(B2, "jen");
+  bloom_add(B2, "work");
+  //@assert(true == bloom_contains(B2, "hey"));
+  //@assert(true == bloom_contains(B2, "jen"));
+  //@assert(true == bloom_contains(B2, "work"));
+  if (bloom_contains(B2, "jen") == false)
+  {
+    perf_score = perf_score - sub;
+
+  }
+  if (bloom_contains(B2, "work") == false)
+  {
+    perf_score = perf_score - sub;
+
+  }
+  if (bloom_contains(B2, "lknlkn") == true)
+  {
+    perf_score = perf_score - sub;
+
+  }
+  if (bloom_contains(B2, "hey") == false)
+  {
+    perf_score = perf_score - sub;
+
+  }
+  if (bloom_contains(B2, "linljn") == true)
+  {
+    perf_score = perf_score - sub;
+
+  }
+
+  return perf_score;
+}

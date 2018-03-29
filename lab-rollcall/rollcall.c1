@@ -1,0 +1,67 @@
+#use <string>
+#use <conio>
+
+typedef struct studs_header student;
+struct studs_header {
+  string andrew_id;
+  int days_present;
+  int days_absent;
+};
+
+//typedef int hash_student(key x);
+
+int hash_student(key x)
+//@requires x != NULL;
+//@requires \hastag(string*, x);
+{
+  string xval = *((string*)x);
+  int length = string_length(xval);
+  char[] vals = string_to_chararray(xval);
+  int sum = 0;
+  for (int i=0; i<length; i++)
+  {
+    char curr = vals[i];
+    sum = sum*32+char_ord(curr);
+  }
+
+  return sum;
+}
+
+//typedef bool students_same_andrewid(key x, key y);
+
+bool students_same_andrewid(key x, key y)
+//@requires x != NULL && y != NULL;
+//@requires \hastag(string*, y) && \hastag(string*, x);
+{
+  string xval = *((string*)x);
+  string yval = *((string*)y);
+  return string_equal(xval,yval);
+}
+
+hset_t new_roster(string[] andrew_ids, int len)
+//@requires \length(andrew_ids) == len;
+{
+  hset_t H = alloc(hset);
+
+  for (int i=0; i<len; i++)
+  {
+    student* S = alloc(student);
+    string* point = alloc(string);
+    *point = andrew_ids[i];
+    key k = (void*)point;
+    value val = (void*)S;
+    hset_insert(H,k,val);
+
+
+  }
+  return H;
+
+
+}
+
+int main()
+{
+
+
+  return 0;
+}
